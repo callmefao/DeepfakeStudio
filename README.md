@@ -51,9 +51,6 @@ Full research findings are available in our [technical report](report.com).
 |:-----------:|:-----------:|:------------------:|
 | ![Source Face](demo/source.png) | ![Original Video](demo/target.gif) | ![Face-Swapped Video](demo/demo.gif) |
 
-## Installation
-
-For detailed installation instructions, configuration options, and troubleshooting, please visit our [Installation Wiki](https://github.com/callmefao/DeepfakeStudio/wiki).
 
 ## Technologies Used
 - **Backend**: Flask
