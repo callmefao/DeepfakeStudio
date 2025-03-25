@@ -47,10 +47,9 @@ Full research findings are available in our [technical report](report.com).
 | ![Real Face Detection](demo/demo_real.png) | ![Fake Face Detection](demo/demo_fake.png) |
 
 ### Deepfake Generation
-Our face-swapping technology demonstration:
-- **Source Image**: ![Source Face](demo/source.png)
-- **Target Video**: ![Original Video](demo/target.gif)
-- **Result**: ![Face-Swapped Video](demo/demo.gif)
+| Source Image | Target Video | Face-Swapped Video |
+|:-----------:|:-----------:|:------------------:|
+| ![Source Face](demo/source.png) | ![Original Video](demo/target.gif) | ![Face-Swapped Video](demo/demo.gif) |
 
 ## Installation
 
