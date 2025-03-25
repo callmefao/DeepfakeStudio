@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepFake AI - Detection</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Add this line before the closing </body> tag -->
+    <script src="{{ url_for('static', filename='js/video-handler.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/video-display.js') }}"></script>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Navbar */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+        
+        .nav-link:hover {
+            color: var(--primary);
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            color: var(--gray);
+        }
+        
+        /* Tabs */
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--gray-light);
+        }
+
+        .tab {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray);
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            color: var(--primary);
+            border-bottom: 2px solid var(--primary);
+        }
+
+        .tab:hover {
+            color: var(--primary-dark);
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Video Feed Section */
+        .video-section {
+            padding: 2rem 0;
+        }
+
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .video-feed {
+            width: 100%;
+            max-width: 800px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            position: relative;
+            background-color: #000;
+            aspect-ratio: 16 / 9;
+        }
+
+        .video-feed img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            position: relative;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .control-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s;
+        }
+
+        .control-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .control-btn.stop {
+            background-color: #ef4444;
+        }
+
+        .control-btn.stop:hover {
+            background-color: #dc2626;
+        }
+
+        .control-btn:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+        }
+
+        /* Loading Spinner */
+        .spinner-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+            border-radius: 12px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+
+        .spinner-container.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner-text {
+            position: absolute;
+            bottom: 30%;
+            color: white;
+            font-weight: 500;
+            text-align: center;
+        }
+
+        .btn-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+            display: none;
+        }
+
+        .btn.loading .btn-spinner {
+            display: inline-block;
+        }
+
+        /* Status Message */
+        .status-message {
+            margin-top: 1rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 500;
+            display: none;
+        }
+
+        .status-message.success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: block;
+        }
+
+        .status-message.error {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            display: block;
+        }
+
+        .status-message.info {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            display: block;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            max-width: 400px;
+            margin-bottom: 2rem;
+            color: var(--gray-light);
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .logo {
+                margin-bottom: 1rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tab {
+                width: 100%;
+                text-align: center;
+                padding: 0.8rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">DeepFake AI</a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/detect-deepfake" class="nav-link">Detect</a>
+                <a href="/gen-deepfake" class="nav-link">Generate</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Deepfake Detection</h1>
+            <p>Detect deepfake manipulations in real-time using our advanced AI technology.</p>
+        </div>
+    </section>
+
+    <!-- Detection Options -->
+    <section class="video-section">
+        <div class="container">
+            <div class="tabs">
+                <div class="tab active" data-tab="youtube">YouTube Video</div>
+                <div class="tab" data-tab="webcam">Webcam</div>
+                <div class="tab" data-tab="upload">Upload File</div>
+            </div>
+
+            <div class="video-container">
+                <!-- YouTube Tab Content -->
+                <div class="tab-content active" id="youtube-content">
+                    <div class="form-container">
+                        <h2 class="form-title">Analyze YouTube Video</h2>
+                        <form id="youtube-form" method="POST" action="/detect-deepfake/youtube">
+                            <div class="form-group">
+                                <label for="youtube_url" class="form-label">Enter YouTube URL</label>
+                                <input type="text" id="youtube_url" name="youtube_url" class="form-input" placeholder="https://www.youtube.com/watch?v=..." required>
+                            </div>
+                            <button type="submit" id="youtube-submit-btn" class="btn">
+                                <span class="btn-spinner"></span>
+                                Analyze Video
+                            </button>
+                            <div id="youtube-status" class="status-message"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Webcam Tab Content -->
+                <div class="tab-content" id="webcam-content">
+                    <div class="form-container">
+                        <h2 class="form-title">Webcam Deepfake Detection</h2>
+                        <p style="text-align: center; margin-bottom: 1rem;">Use your webcam for real-time deepfake detection</p>
+                        <div class="controls">
+                            <button id="start-webcam" class="control-btn">Start Webcam</button>
+                            <button id="stop-webcam" class="control-btn stop" disabled>Stop Webcam</button>
+                        </div>
+                        <div id="webcam-status" class="status-message"></div>
+                    </div>
+                </div>
+
+                <!-- Upload Tab Content -->
+                <div class="tab-content" id="upload-content">
+                    <div class="form-container">
+                        <h2 class="form-title">Upload Media for Analysis</h2>
+                        <form id="upload-form" method="POST" action="/detect-deepfake/upload" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="media_file" class="form-label">Upload Video or Image</label>
+                                <input type="file" id="media_file" name="media_file" class="form-input" accept="video/*,image/*" required>
+                            </div>
+                            <button type="submit" id="upload-submit-btn" class="btn">
+                                <span class="btn-spinner"></span>
+                                Analyze
+                            </button>
+                            <div id="upload-status" class="status-message"></div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Video Feed (shared between tabs) -->
+                <div class="video-feed">
+                    <div id="loading-spinner" class="spinner-container">
+                        <div class="spinner"></div>
+                        <div class="spinner-text">Loading...</div>
+                    </div>
+                    <img id="video-stream" src="{{ url_for('placeholder_feed') }}" alt="Video Feed">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">DeepFake AI</div>
+                    <p class="footer-text">Advancing the field of synthetic media detection with cutting-edge AI technology.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/detect-deepfake">Detection</a></li>
+                        <li><a href="/gen-deepfake">Generation</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; {{ current_year }} DeepFake AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            const videoStream = document.getElementById('video-stream');
+            const startWebcamBtn = document.getElementById('start-webcam');
+            const stopWebcamBtn = document.getElementById('stop-webcam');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const youtubeForm = document.getElementById('youtube-form');
+            const youtubeSubmitBtn = document.getElementById('youtube-submit-btn');
+            const youtubeStatus = document.getElementById('youtube-status');
+            const uploadForm = document.getElementById('upload-form');
+            const uploadSubmitBtn = document.getElementById('upload-submit-btn');
+            const uploadStatus = document.getElementById('upload-status');
+            const webcamStatus = document.getElementById('webcam-status');
+
+            // Show loading spinner
+            function showSpinner(message = 'Loading...') {
+                loadingSpinner.querySelector('.spinner-text').textContent = message;
+                loadingSpinner.classList.add('active');
+            }
+
+            // Hide loading spinner
+            function hideSpinner() {
+                loadingSpinner.classList.remove('active');
+            }
+
+            // Show status message
+            function showStatus(element, message, type) {
+                element.textContent = message;
+                element.className = 'status-message ' + type;
+                setTimeout(() => {
+                    element.className = 'status-message';
+                }, 5000);
+            }
+
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(content => content.classList.remove('active'));
+
+                    // Add active class to clicked tab and corresponding content
+                    tab.classList.add('active');
+                    const tabId = tab.getAttribute('data-tab');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
+
+                    // If switching away from webcam tab, stop webcam if it's running
+                    if (tabId !== 'webcam' && videoStream.src.includes('webcam_feed')) {
+                        fetch('/stop_webcam');
+                        videoStream.src = "{{ url_for('placeholder_feed') }}";
+                        startWebcamBtn.disabled = false;
+                        stopWebcamBtn.disabled = true;
+                        showStatus(webcamStatus, 'Webcam stopped', 'info');
+                    }
+                });
+            });
+
+            // YouTube form submission
+            youtubeForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const youtubeUrl = document.getElementById('youtube_url').value;
+                if (!youtubeUrl) {
+                    showStatus(youtubeStatus, 'Please enter a YouTube URL', 'error');
+                    return;
+                }
+
+                // Disable button and show loading state
+                youtubeSubmitBtn.disabled = true;
+                youtubeSubmitBtn.classList.add('loading');
+                showSpinner('Loading YouTube video...');
+
+                try {
+                    const formData = new FormData(youtubeForm);
+                    const response = await fetch('/detect-deepfake/youtube', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            videoStream.src = "{{ url_for('video_feed') }}?" + new Date().getTime();
+                            showStatus(youtubeStatus, 'YouTube video loaded successfully', 'success');
+                        } else {
+                            showStatus(youtubeStatus, data.message || 'Failed to load YouTube video', 'error');
+                        }
+                    } else {
+                        showStatus(youtubeStatus, 'Server error. Please try again.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showStatus(youtubeStatus, 'An error occurred. Please try again.', 'error');
+                } finally {
+                    youtubeSubmitBtn.disabled = false;
+                    youtubeSubmitBtn.classList.remove('loading');
+                    hideSpinner();
+                }
+            });
+
+            // Upload form submission
+            uploadForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const mediaFile = document.getElementById('media_file').files[0];
+                if (!mediaFile) {
+                    showStatus(uploadStatus, 'Please select a file to upload', 'error');
+                    return;
+                }
+
+                // Disable button and show loading state
+                uploadSubmitBtn.disabled = true;
+                uploadSubmitBtn.classList.add('loading');
+                showSpinner('Uploading and processing file...');
+
+                try {
+                    const formData = new FormData(uploadForm);
+                    const response = await fetch('/detect-deepfake/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.success) {
+                            videoStream.src = data.video_url + "?" + new Date().getTime();
+                            showStatus(uploadStatus, 'File processed successfully', 'success');
+                        } else {
+                            showStatus(uploadStatus, data.message || 'Failed to process file', 'error');
+                        }
+                    } else {
+                        showStatus(uploadStatus, 'Server error. Please try again.', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showStatus(uploadStatus, 'An error occurred. Please try again.', 'error');
+                } finally {
+                    uploadSubmitBtn.disabled = false;
+                    uploadSubmitBtn.classList.remove('loading');
+                    hideSpinner();
+                }
+            });
+
+            // Webcam controls
+            startWebcamBtn.addEventListener('click', async () => {
+                showSpinner('Starting webcam...');
+
+                try {
+                    const response = await fetch('/start_webcam');
+                    if (response.ok) {
+                        videoStream.src = "{{ url_for('webcam_feed') }}?" + new Date().getTime();
+                        startWebcamBtn.disabled = true;
+                        stopWebcamBtn.disabled = false;
+                        showStatus(webcamStatus, 'Webcam started successfully', 'success');
+                    } else {
+                        showStatus(webcamStatus, 'Failed to start webcam', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error starting webcam:', error);
+                    showStatus(webcamStatus, 'An error occurred. Please try again.', 'error');
+                } finally {
+                    hideSpinner();
+                }
+            });
+
+            stopWebcamBtn.addEventListener('click', async () => {
+                try {
+                    await fetch('/stop_webcam');
+                    videoStream.src = "{{ url_for('placeholder_feed') }}";
+                    startWebcamBtn.disabled = false;
+                    stopWebcamBtn.disabled = true;
+                    showStatus(webcamStatus, 'Webcam stopped', 'info');
+                } catch (error) {
+                    console.error('Error stopping webcam:', error);
+                }
+            });
+
+            // Handle image loading errors
+            videoStream.addEventListener('error', () => {
+                hideSpinner();
+                videoStream.src = "{{ url_for('placeholder_feed') }}";
+            });
+
+            // Handle image loading success
+            videoStream.addEventListener('load', () => {
+                hideSpinner();
+            });
+
+            // Clean up when leaving the page
+            window.addEventListener('beforeunload', () => {
+                fetch('/stop_webcam');
+            });
+        });
+    </script>
+<!-- Add this line before the closing </body> tag -->
+<script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
+</body>
+</html>

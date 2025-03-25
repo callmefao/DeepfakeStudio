@@ -1,0 +1,9 @@
+torch >= 2.0.0
+torchvision >= 0.15.0
+flask >= 2.0.0
+opencv-python >= 4.7.0
+mediapipe >= 0.10.0
+vidgear >= 0.3.0
+onnx==1.16.0
+insightface==0.7.3
+onnxruntime-directml

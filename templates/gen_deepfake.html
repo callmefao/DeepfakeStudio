@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepFake AI - Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --gray-light: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navbar */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 0;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            color: var(--primary);
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background-color: var(--primary);
+            transition: width 0.3s;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 4rem 0;
+            text-align: center;
+            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
+            border-radius: 0 0 30px 30px;
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+            color: var(--gray);
+        }
+
+        /* Form Styles */
+        .form-container {
+            width: 100%;
+            max-width: 600px;
+            background-color: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin: 0 auto;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--primary);
+            color: white;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* Video Container */
+        .video-section {
+            padding: 2rem 0;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            margin-bottom: 20px;
+            background-color: #000;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .video-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .video-spinner-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+            z-index: 10;
+            border-radius: 12px;
+        }
+
+        .video-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .status-message.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-message.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .download-btn {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .new-gen-btn {
+            display: inline-block;
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-top: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .new-gen-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Loading overlay styles */
+        #loadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            color: white;
+            flex-direction: column;
+        }
+
+        #loadingOverlay.active {
+            display: flex;
+        }
+
+        #progressBarContainer {
+            width: 60%;
+            max-width: 400px;
+            background-color: #444;
+            border-radius: 10px;
+            height: 20px;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+
+        #progressBar {
+            background-color: #4CAF50;
+            height: 100%;
+            width: 0%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        #processingStatus {
+            margin-top: 15px;
+            font-style: italic;
+            font-size: 16px;
+        }
+
+        .loading-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        /* Results Section */
+        #results {
+            margin-top: 20px;
+            padding-top: 20px;
+            display: none;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark);
+            color: white;
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .footer-logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .footer-text {
+            max-width: 400px;
+            margin-bottom: 2rem;
+            color: var(--gray-light);
+        }
+
+        .footer-links h4 {
+            margin-bottom: 1rem;
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--gray-light);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray-light);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar-container {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .logo {
+                margin-bottom: 1rem;
+            }
+
+            .nav-links {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .footer-content {
+                flex-direction: column;
+            }
+
+            .footer-links {
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <a href="/" class="logo">DeepFake AI</a>
+            <div class="nav-links">
+                <a href="/" class="nav-link">Home</a>
+                <a href="/detect-deepfake" class="nav-link">Detect</a>
+                <a href="/gen-deepfake" class="nav-link">Generate</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Deepfake Generator</h1>
+            <p>Generate realistic deepfakes by swapping faces in videos using our advanced AI technology.</p>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="video-section">
+        <div class="container">
+            <div id="generatorSection">
+                <div class="form-container">
+                    <h2 class="form-title">Create a Deepfake</h2>
+                    <form id="deepfakeForm" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="source_image" class="form-label">Source Image (Face to use):</label>
+                            <input type="file" id="source_image" name="source_image" accept="image/*" required class="form-input">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="target_image" class="form-label">Target Video (Where to place the face):</label>
+                            <input type="file" id="target_image" name="target_image" accept="video/*" required class="form-input">
+                        </div>
+
+                        <button type="submit" class="btn">Generate Deepfake</button>
+                        <div id="status-message" class="status-message"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div id="results">
+                <h2 class="section-title">Generated Deepfake</h2>
+                <div class="video-container">
+                    <div id="videoSpinner" class="video-spinner-container">
+                        <div class="video-spinner"></div>
+                    </div>
+
+                    <!-- Use an img tag for video display like in detect_deepfake.html -->
+                    <img id="video-feed" class="video-feed" src="{{ url_for('placeholder_feed') }}" alt="Video Feed">
+                </div>
+
+                <div class="btn-container">
+                    <a id="downloadButton" class="download-btn" href="#" download>Download Video</a>
+                    <div id="newGenerationButton" class="new-gen-btn">Generate New Deepfake</div>
+                </div>
+                <div id="video-status" class="status-message"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div>
+                    <div class="footer-logo">DeepFake AI</div>
+                    <p class="footer-text">Advancing the field of synthetic media detection with cutting-edge AI technology.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/">Home</a></li>
+                        <li><a href="/detect-deepfake">Detection</a></li>
+                        <li><a href="/gen-deepfake">Generation</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; {{ current_year }} DeepFake AI. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay">
+        <div class="loading-title">Processing Deepfake</div>
+        <div id="progressBarContainer">
+            <div id="progressBar"></div>
+        </div>
+        <div id="processingStatus">Initializing...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('deepfakeForm');
+            const generatorSection = document.getElementById('generatorSection');
+            const resultsSection = document.getElementById('results');
+            const videoFeed = document.getElementById('video-feed');
+            const downloadButton = document.getElementById('downloadButton');
+            const newGenerationButton = document.getElementById('newGenerationButton');
+            const videoStatus = document.getElementById('video-status');
+            const videoSpinner = document.getElementById('videoSpinner');
+            const statusMessage = document.getElementById('status-message');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const progressBar = document.getElementById('progressBar');
+            const processingStatus = document.getElementById('processingStatus');
+
+            // Function to show status messages
+            function showStatus(element, message, type) {
+                element.textContent = message;
+                element.className = 'status-message ' + type;
+                setTimeout(() => {
+                    element.className = 'status-message';
+                }, 5000);
+            }
+
+            // Sample processing steps
+            const processingSteps = [
+                'Initializing AI models...',
+                'Detecting faces in source image...',
+                'Analyzing target video frames...',
+                'Generating face swaps for each frame...',
+                'Processing video with enhanced AI features...',
+                'Applying smoothing and color correction...',
+                'Finalizing output video...'
+            ];
+
+            // Function to simulate progress
+            function simulateProgress() {
+                let progress = 0;
+                let stepIndex = 0;
+                let interval;
+
+                // Update progress bar and status messages
+                interval = setInterval(() => {
+                    // Update step message every ~14% of progress
+                    if (progress >= stepIndex * 14 && stepIndex < processingSteps.length) {
+                        processingStatus.textContent = processingSteps[stepIndex];
+                        stepIndex++;
+                    }
+
+                    progress += 1;
+                    progressBar.style.width = `${Math.min(progress, 99)}%`;
+
+                    // Stop at 99% (the actual completion will be handled by the fetch response)
+                    if (progress >= 99) {
+                        clearInterval(interval);
+                    }
+                }, 500);
+
+                return interval;
+            }
+
+            // Check if we have an output file from the server
+            {% if output_file %}
+                resultsSection.style.display = 'block';
+                generatorSection.style.display = 'none';
+                console.log("Output file exists, showing video");
+
+                // Set video feed source to the processed feed URL
+                const videoUrl = `/processed_feed/{{ output_file }}`;
+                videoFeed.src = videoUrl;
+
+                // Set download button
+                downloadButton.href = `/download-deepfake/{{ output_file }}`;
+
+                // Hide spinner when video loads
+                videoFeed.onload = function() {
+                    videoSpinner.style.display = 'none';
+                };
+
+                // Show spinner initially
+                videoSpinner.style.display = 'flex';
+            {% else %}
+                resultsSection.style.display = 'none';
+                generatorSection.style.display = 'block';
+                console.log("Output file doesn't exist, showing generator form");
+            {% endif %}
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Validate form inputs
+                const sourceImage = document.getElementById('source_image').files[0];
+                const targetImage = document.getElementById('target_image').files[0];
+
+                if (!sourceImage) {
+                    showStatus(statusMessage, "Please select a source image", "error");
+                    return;
+                }
+
+                if (!targetImage) {
+                    showStatus(statusMessage, "Please select a target video", "error");
+                    return;
+                }
+
+                // Show loading overlay and start progress simulation
+                loadingOverlay.classList.add('active');
+                const progressInterval = simulateProgress();
+
+                // Show video spinner
+                videoSpinner.style.display = 'flex';
+
+                // Get form data
+                const formData = new FormData(form);
+
+                // Log form data for debugging
+                console.log("Submitting form with:");
+                console.log("- Source image:", sourceImage.name);
+                console.log("- Target video:", targetImage.name);
+
+                // Send AJAX request
+                fetch('/gen-deepfake', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    console.log("Response status:", response.status);
+                    if (!response.ok) {
+                        throw new Error(`Server responded with status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Response data:", data);
+
+                    // Hide loading overlay
+                    loadingOverlay.classList.remove('active');
+
+                    if (data.success) {
+                        // Show the results section and hide the generator section
+                        resultsSection.style.display = 'block';
+                        generatorSection.style.display = 'none';
+
+                        // Set the video feed source to the processed feed URL
+                        const videoUrl = `/processed_feed/${data.output_filename}`;
+                        videoFeed.src = videoUrl;
+
+                        // Set the download button URL
+                        downloadButton.href = `/download-deepfake/${data.output_filename}`;
+
+                        showStatus(videoStatus, "Deepfake generated successfully", "success");
+                    } else {
+                        showStatus(statusMessage, "Error: " + data.message, "error");
+                        videoSpinner.style.display = 'none';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showStatus(statusMessage, "An error occurred during processing: " + error.message, "error");
+                    videoSpinner.style.display = 'none';
+                    loadingOverlay.classList.remove('active');
+                });
+            });
+
+            // Handle video feed loading errors
+            videoFeed.addEventListener('error', function() {
+                console.error('Error loading video feed');
+                videoSpinner.style.display = 'none';
+                showStatus(videoStatus, "Error loading video. Please try again.", "error");
+            });
+
+            // Handle video feed loading success
+            videoFeed.addEventListener('load', function() {
+                console.log('Video feed loaded successfully');
+                videoSpinner.style.display = 'none';
+            });
+
+            newGenerationButton.addEventListener('click', function() {
+                // Hide results and show generator form
+                resultsSection.style.display = 'none';
+                generatorSection.style.display = 'block';
+
+                // Clear form inputs
+                form.reset();
+
+                // Clear any status messages
+                statusMessage.textContent = '';
+                statusMessage.className = 'status-message';
+            });
+        });
+    </script>
+</body>
+</html>
+
