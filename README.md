@@ -49,8 +49,8 @@ Full research findings are available in our [technical report](report.com).
 ### Deepfake Generation
 Our face-swapping technology demonstration:
 - **Source Image**: ![Source Face](demo/source.png)
-- **Target Video**: [Original Video](demo/target.mp4)
-- **Result**: [Face-Swapped Video](demo/demo.mp4)
+- **Target Video**: [Original Video](demo/target.gif)
+- **Result**: [Face-Swapped Video](demo/demo.gif)
 
 ## Installation
 
