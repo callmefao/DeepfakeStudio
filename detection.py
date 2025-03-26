@@ -2,6 +2,7 @@ import mediapipe as mp
 import torch
 import cv2
 from models.model import ResNet
+import time
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
@@ -39,10 +40,21 @@ def predict(input_tensor):
         print("max_confidence: ", max_confidence)
     return predicted_class, confidence_score
 
-# Function to process frames (shared between YouTube and webcam)
+
+prev_frame_time = 0
+curr_frame_time = 0
+
+
 def process_frame(frame):
+    global prev_frame_time, curr_frame_time
+
     if frame is None:
         return None
+
+    # Calculate FPS
+    curr_frame_time = time.time()
+    fps = 1 / (curr_frame_time - prev_frame_time) if prev_frame_time > 0 else 0
+    prev_frame_time = curr_frame_time
 
     # Convert the frame to RGB (MediaPipe works with RGB)
     frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -100,5 +112,10 @@ def process_frame(frame):
             # Display confidence score as a label
             label = f"{predicted_class}: {confidence_score:.2f}"
             cv2.putText(frame, label, (new_x1, new_y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+
+    # Display FPS in the top-right corner
+    fps_text = f"FPS: {fps:.1f}"
+    cv2.putText(frame, fps_text, (10, 30), cv2.FONT_HERSHEY_SIMPLEX,
+                0.7, (0, 255, 255), 2)
 
     return frame
