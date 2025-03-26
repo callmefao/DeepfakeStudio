@@ -1,7 +1,5 @@
 # DeepfakeStudio
 
-# DeepfakeStudio
-
 ## Overview
 DeepfakeStudio is a web application built with Flask that offers both deepfake detection and generation capabilities. The project focuses primarily on research and implementation of various deepfake detection models, while also providing a face-swapping generation feature.
 
@@ -58,3 +56,12 @@ Full research findings are available in our [technical report](report.com).
 - **Computer Vision**: OpenCV, MediaPipe, InsightFace
 - **Video Processing**: VidGear
 - **Frontend**: HTML, CSS, JavaScript
+
+## Models
+The following pretrained models are utilized in this project:
+
+### Detection Models
+- **ResNet50**: [Download](https://drive.google.com/file/d/11iiJCkNPaspD2vWK0ynEdFDwGmHMGfq0/view?usp=drive_link)
+
+### Generation Models
+- **InsightFace SWAPPER**: [Download](https://drive.google.com/file/d/1nBhHZTfpDSwxfnqFbS_5pTA7_AJarIIQ/view?usp=drive_link)
