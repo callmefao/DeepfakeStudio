@@ -29,7 +29,7 @@ Face-swapping capabilities:
 Our primary focus has been researching and implementing effective deepfake detection models. We've explored and compared multiple neural network architectures:  
 
 - **🧠 Shallow Neural Networks**: [SGD Implementation](https://www.kaggle.com/code/phnghunh2704/last-shallow-sgd) | [AdamW Implementation](https://www.kaggle.com/code/phnghunh2704/last-shallow-adamw)  
-- **🖼 Convolutional Neural Networks**: [Initial Model](https://www.kaggle.com/code/quynhfptct24/trung-nhan-wik4) | [Improved Model](https://www.kaggle.com/code/quynhfptct24/trung-nhan-w5)  
+- **🖼 Convolutional Neural Networks**: [Initial Model](https://www.kaggle.com/code/quynhfptct24/trung-nhan-wik4) | [Improved Model](https://www.kaggle.com/code/quynhfptct24/trung-nhan-w5) | [Fine-Tuned](https://www.kaggle.com/code/thameshuynh/w6-quynh-new) 
 - **🎯 ResNet Architecture**: [Implementation](https://www.kaggle.com/code/daofoah/resnet-daeepfake)  
 - **⚡ EfficientNet**: [Implementation](https://www.kaggle.com/code/daofoah/efficient-daeepfake)  
 
