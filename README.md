@@ -35,7 +35,7 @@ Our primary focus has been researching and implementing effective deepfake detec
 
 For our dataset preparation methodology, see our [data processing notebook](https://www.kaggle.com/code/thameshuynh/train-val-test).
 
-Full research findings are available in our [technical report](https://www.overleaf.com/read/kjdcbxwpqnyk#391da9).
+Full research findings are available in our [technical report](https://www.overleaf.com/read/hbzsdfxvtydh#bf2f3d).
 
 ## Demo
 
