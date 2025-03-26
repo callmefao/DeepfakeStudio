@@ -60,8 +60,6 @@ Full research findings are available in our [technical report](report.com).
 ## Models
 The following pretrained models are utilized in this project:
 
-### Detection Models
-- **ResNet50**: [Download](https://drive.google.com/file/d/11iiJCkNPaspD2vWK0ynEdFDwGmHMGfq0/view?usp=drive_link)
+### Detection Models: [Download](https://drive.google.com/file/d/11iiJCkNPaspD2vWK0ynEdFDwGmHMGfq0/view?usp=drive_link)
 
-### Generation Models
-- **InsightFace SWAPPER**: [Download](https://drive.google.com/file/d/1nBhHZTfpDSwxfnqFbS_5pTA7_AJarIIQ/view?usp=drive_link)
+### Generation Models: [Download](https://drive.google.com/file/d/1nBhHZTfpDSwxfnqFbS_5pTA7_AJarIIQ/view?usp=drive_link)
