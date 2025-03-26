@@ -20,6 +20,8 @@ model.eval()
 
 min_confidence = None
 max_confidence = None
+
+
 # EfficientNet80
 def predict(input_tensor):
     global min_confidence, max_confidence
@@ -41,6 +43,7 @@ def predict(input_tensor):
     return predicted_class, confidence_score
 
 
+# Function to process frames (shared between YouTube and webcam)
 prev_frame_time = 0
 curr_frame_time = 0
 

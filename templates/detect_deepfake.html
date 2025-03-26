@@ -6,9 +6,6 @@
     <title>DeepFake AI - Detection</title>
     <link rel="icon" href="{{ url_for('static', filename='images/logo.png') }}" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Add this line before the closing </body> tag -->
-    <script src="{{ url_for('static', filename='js/video-handler.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/video-display.js') }}"></script>
     <style>
         :root {
             --primary: #6366f1;
@@ -18,56 +15,64 @@
             --light: #f8fafc;
             --gray: #64748b;
             --gray-light: #e2e8f0;
+            --accent-blue: #38bdf8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
         }
-        
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--light);
-            color: var(--dark);
+            background-color: var(--dark);
+            color: var(--light);
             line-height: 1.6;
+            background-image: url("{{ url_for('static', filename='images/background.png') }}");
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
         }
-        
+
         .container {
             width: 100%;
             max-width: 1200px;
             margin: 0 auto;
             padding: 0 20px;
         }
-        
+
         /* Navbar */
         .navbar {
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            background-color: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             position: sticky;
             top: 0;
             z-index: 100;
         }
-        
+
         .navbar-container {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1rem 0;
         }
-        
+
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
             text-decoration: none;
         }
-        
+
         .nav-links {
             display: flex;
             gap: 2rem;
         }
-        
+
         .nav-link {
             color: var(--dark);
             text-decoration: none;
@@ -76,11 +81,11 @@
             padding: 0.5rem 0;
             position: relative;
         }
-        
+
         .nav-link:hover {
             color: var(--primary);
         }
-        
+
         .nav-link::after {
             content: '';
             position: absolute;
@@ -91,57 +96,108 @@
             background-color: var(--primary);
             transition: width 0.3s;
         }
-        
+
         .nav-link:hover::after {
             width: 100%;
         }
-        
-        /* Hero Section */
-        .hero {
-            padding: 4rem 0;
-            text-align: center;
-            background: linear-gradient(135deg, #f0f4ff 0%, #e0e7ff 100%);
-            border-radius: 0 0 30px 30px;
-            margin-bottom: 2rem;
+
+        /* Content Box */
+        .content-box {
+            background: rgba(30, 41, 59, 0.85);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            margin: 2rem auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .hero h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-            color: var(--dark);
+
+        .content-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--primary));
         }
-        
-        .hero p {
-            font-size: 1.1rem;
-            max-width: 700px;
-            margin: 0 auto 1.5rem;
-            color: var(--gray);
+
+        .content-box-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
-        
+
+        .content-box-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .content-box-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 4px;
+        }
+
+        .content-box-subtitle {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 0.25rem;
+        }
+
+        .content-box-badge {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
         /* Tabs */
         .tabs {
             display: flex;
             justify-content: center;
             margin-bottom: 2rem;
-            border-bottom: 1px solid var(--gray-light);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 12px 12px 0 0;
+            overflow: hidden;
         }
 
         .tab {
             padding: 1rem 2rem;
             cursor: pointer;
             font-weight: 500;
-            color: var(--gray);
+            color: rgba(255, 255, 255, 0.7);
             border-bottom: 2px solid transparent;
             transition: all 0.3s;
+            text-align: center;
+            flex: 1;
         }
 
         .tab.active {
             color: var(--primary);
             border-bottom: 2px solid var(--primary);
+            background: rgba(99, 102, 241, 0.1);
         }
 
         .tab:hover {
-            color: var(--primary-dark);
+            color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
         }
 
         /* Tab Content */
@@ -153,51 +209,79 @@
             display: block;
         }
 
-        /* Video Feed Section */
+        /* Video Section */
         .video-section {
             padding: 2rem 0;
         }
 
         .video-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .video-feed {
+            position: relative;
             width: 100%;
-            max-width: 800px;
+            margin: 1.5rem 0;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             background-color: #000;
             aspect-ratio: 16 / 9;
         }
 
-        .video-feed img {
+        .video-feed {
             width: 100%;
             height: 100%;
             object-fit: contain;
             display: block;
         }
 
+        .video-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
         /* Form Styles */
         .form-container {
-            width: 100%;
-            max-width: 600px;
-            background-color: white;
-            border-radius: 12px;
+            background: rgba(30, 41, 59, 0.85);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 2rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            margin: 0 auto 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            max-width: 600px;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--primary));
         }
 
         .form-title {
             font-size: 1.5rem;
             margin-bottom: 1.5rem;
-            color: var(--dark);
-            text-align: center;
+            color: var(--light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-title::before {
+            content: '';
+            display: inline-block;
+            width: 8px;
+            height: 24px;
+            background: var(--primary);
+            border-radius: 4px;
         }
 
         .form-group {
@@ -208,17 +292,19 @@
             display: block;
             margin-bottom: 0.5rem;
             font-weight: 500;
-            color: var(--dark);
+            color: var(--light);
         }
 
         .form-input {
             width: 100%;
             padding: 0.8rem 1rem;
-            border: 1px solid var(--gray-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 8px;
             font-family: 'Inter', sans-serif;
             font-size: 1rem;
             transition: border-color 0.3s;
+            background-color: rgba(255, 255, 255, 0.05);
+            color: var(--light);
         }
 
         .form-input:focus {
@@ -227,31 +313,89 @@
             box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
         }
 
-        .btn {
-            display: inline-block;
-            background-color: var(--primary);
-            color: white;
-            padding: 0.8rem 1.8rem;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 500;
-            transition: background-color 0.3s, transform 0.2s;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1rem;
-            position: relative;
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
         }
 
-        .btn:hover {
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.8rem;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform 0.5s, opacity 1s;
+        }
+
+        .btn:active::after {
+            transform: scale(0, 0);
+            opacity: 0.3;
+            transition: 0s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+            width: 100%;
+        }
+
+        .btn-primary:hover {
             background-color: var(--primary-dark);
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        .btn-success {
+            background-color: var(--accent-green);
+            color: white;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+        }
+
+        .btn-success:hover {
+            background-color: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
+        }
+
+        .btn-danger {
+            background-color: var(--accent-red);
+            color: white;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
         }
 
         .btn:disabled {
             background-color: var(--gray);
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         /* Controls */
@@ -263,31 +407,46 @@
         }
 
         .control-btn {
-            padding: 0.5rem 1rem;
+            padding: 0.8rem 1.5rem;
             border-radius: 8px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            cursor: pointer;
             font-weight: 500;
-            transition: background-color 0.3s;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .control-btn:hover {
-            background-color: var(--primary-dark);
+        .control-btn.start {
+            background-color: var(--accent-green);
+            color: white;
+            box-shadow: 0 4px 14px rgba(34, 197, 94, 0.4);
+        }
+
+        .control-btn.start:hover {
+            background-color: #16a34a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 197, 94, 0.6);
         }
 
         .control-btn.stop {
-            background-color: #ef4444;
+            background-color: var(--accent-red);
+            color: white;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
         }
 
         .control-btn.stop:hover {
             background-color: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
         }
 
         .control-btn:disabled {
             background-color: var(--gray);
             cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         /* Loading Spinner */
@@ -384,12 +543,61 @@
             display: block;
         }
 
+        /* Decorative Elements */
+        .tech-circle {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+        }
+
+        .tech-circle-1 {
+            width: 150px;
+            height: 150px;
+            top: -75px;
+            left: -75px;
+        }
+
+        .tech-circle-2 {
+            width: 100px;
+            height: 100px;
+            bottom: -50px;
+            right: -50px;
+        }
+
+        .tech-dot {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: var(--accent-blue);
+            opacity: 0.6;
+        }
+
+        .tech-dot-1 {
+            top: 20px;
+            right: 30px;
+        }
+
+        .tech-dot-2 {
+            bottom: 40px;
+            left: 20px;
+        }
+
+        .tech-dot-3 {
+            top: 50%;
+            right: 10px;
+        }
+
         /* Footer */
         footer {
-            background-color: var(--dark);
+            background-color: rgba(30, 41, 59, 0.9);
             color: white;
             padding: 3rem 0;
             margin-top: 4rem;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
         }
 
         .footer-content {
@@ -408,7 +616,7 @@
         .footer-text {
             max-width: 400px;
             margin-bottom: 2rem;
-            color: var(--gray-light);
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .footer-links h4 {
@@ -424,7 +632,7 @@
         }
 
         .footer-links a {
-            color: var(--gray-light);
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
             transition: color 0.3s;
         }
@@ -438,7 +646,7 @@
             padding-top: 2rem;
             margin-top: 2rem;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--gray-light);
+            color: rgba(255, 255, 255, 0.7);
         }
 
         /* Responsive */
@@ -455,14 +663,6 @@
             .nav-links {
                 width: 100%;
                 justify-content: center;
-            }
-
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .hero p {
-                font-size: 1rem;
             }
 
             .tabs {
@@ -483,6 +683,16 @@
             .footer-links {
                 margin-top: 2rem;
             }
+
+            .content-box {
+                padding: 1.5rem;
+            }
+
+            .content-box-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
         }
     </style>
 </head>
@@ -499,24 +709,29 @@
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>Deepfake Detection</h1>
-            <p>Detect deepfake manipulations in real-time using our advanced AI technology.</p>
-        </div>
-    </section>
-
     <!-- Detection Options -->
     <section class="video-section">
         <div class="container">
-            <div class="tabs">
-                <div class="tab active" data-tab="youtube">YouTube Video</div>
-                <div class="tab" data-tab="webcam">Webcam</div>
-                <div class="tab" data-tab="upload">Upload File</div>
-            </div>
+            <div class="content-box">
+                <div class="tech-circle tech-circle-1"></div>
+                <div class="tech-circle tech-circle-2"></div>
+                <div class="tech-dot tech-dot-1"></div>
+                <div class="tech-dot tech-dot-2"></div>
+                <div class="tech-dot tech-dot-3"></div>
 
-            <div class="video-container">
+                <div class="content-box-header">
+                    <div>
+                        <h2 class="content-box-title">Deepfake Detection</h2>
+                        <p class="content-box-subtitle">Detect deepfake manipulations in real-time using our advanced AI technology</p>
+                    </div>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" data-tab="youtube">YouTube Video</div>
+                    <div class="tab" data-tab="webcam">Webcam</div>
+                    <div class="tab" data-tab="upload">Upload File</div>
+                </div>
+
                 <!-- YouTube Tab Content -->
                 <div class="tab-content active" id="youtube-content">
                     <div class="form-container">
@@ -526,7 +741,7 @@
                                 <label for="youtube_url" class="form-label">Enter YouTube URL</label>
                                 <input type="text" id="youtube_url" name="youtube_url" class="form-input" placeholder="https://www.youtube.com/watch?v=..." required>
                             </div>
-                            <button type="submit" id="youtube-submit-btn" class="btn">
+                            <button type="submit" id="youtube-submit-btn" class="btn btn-primary">
                                 <span class="btn-spinner"></span>
                                 Analyze Video
                             </button>
@@ -539,9 +754,9 @@
                 <div class="tab-content" id="webcam-content">
                     <div class="form-container">
                         <h2 class="form-title">Webcam Deepfake Detection</h2>
-                        <p style="text-align: center; margin-bottom: 1rem;">Use your webcam for real-time deepfake detection</p>
+                        <p style="text-align: center; margin-bottom: 1rem; color: rgba(255, 255, 255, 0.7);">Use your webcam for real-time deepfake detection</p>
                         <div class="controls">
-                            <button id="start-webcam" class="control-btn">Start Webcam</button>
+                            <button id="start-webcam" class="control-btn start">Start Webcam</button>
                             <button id="stop-webcam" class="control-btn stop" disabled>Stop Webcam</button>
                         </div>
                         <div id="webcam-status" class="status-message"></div>
@@ -557,7 +772,7 @@
                                 <label for="media_file" class="form-label">Upload Video or Image</label>
                                 <input type="file" id="media_file" name="media_file" class="form-input" accept="video/*,image/*" required>
                             </div>
-                            <button type="submit" id="upload-submit-btn" class="btn">
+                            <button type="submit" id="upload-submit-btn" class="btn btn-primary">
                                 <span class="btn-spinner"></span>
                                 Analyze
                             </button>
@@ -567,12 +782,12 @@
                 </div>
 
                 <!-- Video Feed (shared between tabs) -->
-                <div class="video-feed">
+                <div class="video-container">
                     <div id="loading-spinner" class="spinner-container">
                         <div class="spinner"></div>
                         <div class="spinner-text">Loading...</div>
                     </div>
-                    <img id="video-stream" src="{{ url_for('placeholder_feed') }}" alt="Video Feed">
+                    <img id="video-stream" class="video-feed" src="{{ url_for('placeholder_feed') }}" alt="Video Feed">
                 </div>
             </div>
         </div>
@@ -797,7 +1012,7 @@
             });
         });
     </script>
-<!-- Add this line before the closing </body> tag -->
-<script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/webcam.js') }}"></script>
 </body>
 </html>
+
